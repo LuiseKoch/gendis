@@ -1,0 +1,17 @@
+# core
+pandas
+numpy
+scikit-learn
+statsmodels
+krippendorff
+
+# transformers / supervised
+torch>=2.1
+transformers>=4.40
+datasets>=2.18
+accelerate>=0.30
+setfit>=1.0
+sentence-transformers>=2.7
+
+# zero-shot (only needed to (re)run new countries through the LLM)
+openai>=1.40

@@ -1,0 +1,10 @@
+processed.csv
+idx_map.csv
+data/
+*.parquet
+.venv*/
+__pycache__/
+*.pyc
+*.log
+*.bak
+figures/
