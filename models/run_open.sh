@@ -5,6 +5,7 @@
 # tables automatically. Does NOT call evaluate.py itself, because vLLM lives in
 # its own venv (see setup note below).
 set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
 cd "$(dirname "$0")"
 
 # --- shared HF cache (respect an already-exported env; else use the observed
@@ -27,9 +28,9 @@ nvidia-smi --query-gpu=index,memory.used,memory.total --format=csv,noheader || t
 TP="${TP:-1}"
 
 # model id (must match scan-cache) | short tag
-python run_zeroshot_open.py --model meta-llama/Llama-3.1-8B-Instruct --tag llama31-8b --tp "$TP" --max-model-len 8192
-python run_zeroshot_open.py --model google/gemma-2-9b-it            --tag gemma2-9b  --tp "$TP" --max-model-len 8192
+python "$ROOT"/models/run_zeroshot_open.py --model meta-llama/Llama-3.1-8B-Instruct --tag llama31-8b --tp "$TP" --max-model-len 8192
+python "$ROOT"/models/run_zeroshot_open.py --model google/gemma-2-9b-it            --tag gemma2-9b  --tp "$TP" --max-model-len 8192
 
 echo
 echo "Done. Wrote predictions/zeroshot-llama31-8b.csv and predictions/zeroshot-gemma2-9b.csv"
-echo "Now (in the benchmark venv with sklearn/statsmodels) run:  python evaluate.py"
+echo "Now (in the benchmark venv with sklearn/statsmodels) run:  python "$ROOT"/evaluation/evaluate.py"

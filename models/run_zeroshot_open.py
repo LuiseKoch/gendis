@@ -20,7 +20,7 @@ silently downloading). --tp must equal the number of visible GPUs.
 
 import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
-from gendis.paths import PROCESSED
+from gendis import PROCESSED
 
 import argparse
 import json

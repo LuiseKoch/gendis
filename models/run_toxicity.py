@@ -16,7 +16,7 @@ Usage:
 
 import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
-from gendis.paths import PROCESSED
+from gendis import PROCESSED, write_predictions
 
 import argparse
 import numpy as np
@@ -24,7 +24,6 @@ import pandas as pd
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-from gendis.common import write_predictions
 
 
 def make_args():

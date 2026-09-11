@@ -8,6 +8,7 @@
 #   export OPENAI_KEY_FILE=/path/to/openai.key   # only if re-running zero-shot here
 #   bash run_all_virgil.sh
 set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # --- HF cache is SHARED on virgil: reuse it, do NOT create a personal copy. ---
 # Respect an HF_HOME already exported in your environment (the shared cache).
@@ -46,34 +47,34 @@ sys.exit(0 if ok else 1)
 PY
 
 # 1. shared partition + human ceiling
-python make_folds.py
-python iaa.py
+python "$ROOT"/make_folds.py
+python "$ROOT"/evaluation/iaa.py
 
 # 2. training-free systems
-python run_floor.py
-python run_toxicity.py --model unitary/multilingual-toxic-xlm-roberta
+python "$ROOT"/models/run_floor.py
+python "$ROOT"/models/run_toxicity.py --model unitary/multilingual-toxic-xlm-roberta
 
 # 3. zero-shot: prefer the bundled all-country file (built locally via Batch API).
 if [ -f predictions/zeroshot.csv ]; then
   echo "using bundled predictions/zeroshot.csv (all countries)"
 elif [ -f ../gpt5nano_eval/predictions_merged.csv ]; then
-  python ingest_zeroshot.py ../gpt5nano_eval/predictions_merged.csv   # Kenya-only fallback
+  python "$ROOT"/models/ingest_zeroshot.py ../gpt5nano_eval/predictions_merged.csv   # Kenya-only fallback
 fi
 
 # 4. supervised (GPU). loco (leave-one-country-out) needs >=2 countries.
 N_COUNTRIES=$(python3 -c "import pandas as pd; print(pd.read_csv('processed.csv')['country'].nunique())")
 echo "countries in data: $N_COUNTRIES"
 
-python run_finetune.py --setting cv
-python run_setfit.py   --setting cv
+python "$ROOT"/models/run_finetune.py --setting cv
+python "$ROOT"/models/run_setfit.py   --setting cv
 if [ "$N_COUNTRIES" -ge 2 ]; then
-  python run_finetune.py --setting loco
-  python run_setfit.py   --setting loco
+  python "$ROOT"/models/run_finetune.py --setting loco
+  python "$ROOT"/models/run_setfit.py   --setting loco
 else
   echo "skipping loco (need >=2 countries; have $N_COUNTRIES)"
 fi
 
 # 5. score everything on identical out-of-fold instances
-python evaluate.py
+python "$ROOT"/evaluation/evaluate.py
 
 echo "DONE -> results/  predictions/"

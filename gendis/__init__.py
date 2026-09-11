@@ -1,1 +1,0 @@
-"""GENDIS evaluation harness."""

@@ -14,7 +14,7 @@ when new countries are added.
 
 import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
-from gendis.paths import PREDICTIONS, PROCESSED
+from gendis import PREDICTIONS, PROCESSED
 
 import json
 import sys
@@ -67,6 +67,6 @@ if __name__ == "__main__":
     if missing:
         print(f"WARN: {missing} comments had no zero-shot match by text")
 
-    from gendis.common import write_predictions
+    from gendis import write_predictions
     write_predictions(merged["idx"], merged["country"], SYS,
                       pred_l1, pred_l2, str(PREDICTIONS / "zeroshot.csv"))

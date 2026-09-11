@@ -7,7 +7,7 @@ L2: predict the per-fold training-majority class (no leakage).
 
 import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
-from gendis.paths import PREDICTIONS, PROCESSED
+from gendis import PREDICTIONS, PROCESSED, write_predictions
 
 import numpy as np
 import pandas as pd
@@ -24,6 +24,5 @@ for f in sorted(df["fold"].unique()):
     maj = int(train["gold_l2"].value_counts().idxmax())
     pred_l2[df["fold"].values == f] = maj
 
-from gendis.common import write_predictions
 write_predictions(df["idx"], df["country"], "floor", kp.values, pred_l2,
                   str(PREDICTIONS / "floor.csv"))

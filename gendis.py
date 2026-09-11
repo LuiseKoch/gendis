@@ -1,7 +1,21 @@
-"""Shared data loading, fold assignment, and label utilities for the
-gendered-speech benchmark. Every script imports from here so that the
-gold labels, the comparable test partition, and the prediction schema are
-identical across all systems (supervised, zero-shot, and baselines)."""
+"""Shared helpers for the GENDIS benchmark: repository paths, label
+constants, fold assignment, and the common prediction schema. Every
+script imports from here so gold labels, the comparable test partition,
+and the prediction format are identical across all systems."""
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+
+DATA = ROOT / "data"
+PROCESSED = DATA / "processed.csv"
+OUTPUTS = ROOT / "outputs"
+PREDICTIONS = OUTPUTS / "predictions"
+RESULTS = OUTPUTS / "results"
+FIGURES = OUTPUTS / "figures"
+
+for _d in (DATA, OUTPUTS, PREDICTIONS, RESULTS):
+    _d.mkdir(exist_ok=True)
+
 import glob
 import os
 import numpy as np

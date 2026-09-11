@@ -13,7 +13,7 @@ to reuse those results. Use THIS script for the newly added countries.
 
 import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
-from gendis.paths import PREDICTIONS, PROCESSED
+from gendis import PREDICTIONS, PROCESSED, write_predictions
 
 import json
 import os
@@ -23,7 +23,6 @@ import pandas as pd
 from openai import OpenAI
 
 from prompt import SYSTEM_PROMPT, USER_TEMPLATE, JSON_SCHEMA, MODEL
-from gendis.common import write_predictions
 
 KEY = open(os.environ["OPENAI_KEY_FILE"]).read().strip()
 client = OpenAI(api_key=KEY)

@@ -11,13 +11,12 @@ the end-to-end 4-way score are reported as well.
 
 import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
-from gendis.paths import PREDICTIONS, PROCESSED, RESULTS
+from gendis import FOUR_WAY, L2_NAMES, PREDICTIONS, PROCESSED, RESULTS
 
 import glob
 import numpy as np
 import pandas as pd
 from sklearn.metrics import f1_score, accuracy_score
-from gendis.common import L2_NAMES, FOUR_WAY
 
 proc = pd.read_csv(str(PROCESSED))
 rand = proc[proc["stratum"] == "random_uniform"]

@@ -10,9 +10,7 @@ Writes processed.csv, the single input every other script in this repo reads.
 Fold assignments ship with the release, so the splits reproduce exactly.
 """
 
-import sys as _sys, pathlib as _pl
-_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
-from gendis.paths import PROCESSED
+from gendis import PROCESSED
 
 import csv
 import os

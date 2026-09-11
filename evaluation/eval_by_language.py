@@ -8,12 +8,11 @@ Outputs a tidy CSV and prints LaTeX-ready rows for the appendix table.
 
 import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
-from gendis.paths import PREDICTIONS, PROCESSED, RESULTS
+from gendis import FOUR_WAY, L2_NAMES, PREDICTIONS, PROCESSED, RESULTS
 
 import pandas as pd
 import numpy as np
 from sklearn.metrics import f1_score
-from gendis.common import L2_NAMES, FOUR_WAY
 
 PROC = str(PROCESSED)
 

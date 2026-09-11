@@ -21,7 +21,7 @@ Request access there, then authenticate (`huggingface-cli login`, or set
 
 ```bash
 pip install -r requirements.txt
-python scripts/prepare_data.py   # writes data/processed.csv
+python prepare_data.py   # writes data/processed.csv
 ```
 
 `data/processed.csv` is the single input every other script reads. The fold
@@ -31,34 +31,37 @@ exactly rather than being redrawn.
 ## Layout
 
 ```
-gendis/              shared library
-  common.py          label constants, fold assignment, prediction schema
-  paths.py           repo-root-relative paths, so scripts run from any directory
-scripts/
-  prepare_data.py    download the release and build data/processed.csv
-  make_folds.py      regenerate the stratified 5-fold split (needs the raw
-                     annotation files; the released folds reproduce as-is)
-  check_fold_duplicates.py
-systems/
-  run_floor.py             keyword-match floor
-  run_toxicity.py          off-the-shelf multilingual toxicity baseline
-  run_finetune.py          XLM-R fine-tuning
-  run_setfit.py            SetFit (contrastive few-shot)
-  run_zeroshot.py          closed models via the OpenAI Batch API
-  run_zeroshot_open.py     open models via vLLM
-  run_zeroshot_hf.py       transformers fallback for models vLLM cannot serve
-  ingest_zeroshot.py       parse batch output into the prediction schema
-  prompt.py                the zero-shot prompt, fixed in advance
-analysis/
-  evaluate.py              main metrics, per country, plus paired McNemar
-  eval_random_stratum.py   metrics on the uniform random stratum only
-  eval_by_language.py      metrics by language group
-  iaa.py                   inter-annotator agreement
-  make_figures.py          label-distribution and confusion figures
-pipelines/           end-to-end shell runners
+prepare_data.py      step 1: download the release and build data/processed.csv
+run_all.sh           run the whole pipeline end to end
+gendis.py            shared helpers: paths, label constants, prediction schema
+make_folds.py        regenerate the fold split (needs the raw annotation files;
+                     the released folds reproduce as-is, so this is rarely needed)
+
+models/              scripts that PRODUCE predictions
+  run_floor.py          keyword-match floor
+  run_toxicity.py       off-the-shelf multilingual toxicity baseline
+  run_finetune.py       XLM-R fine-tuning
+  run_setfit.py         SetFit (contrastive few-shot)
+  run_zeroshot.py       closed models via the OpenAI Batch API
+  run_zeroshot_open.py  open models via vLLM
+  run_zeroshot_hf.py    transformers fallback for models vLLM cannot serve
+  ingest_zeroshot.py    parse batch output into the prediction schema
+  prompt.py             the zero-shot prompt, fixed in advance
+  run_open.sh           GPU runner for the open zero-shot models
+  run_within.sh         GPU runner for the within-country supervised models
+
+evaluation/          scripts that TURN predictions INTO the paper's numbers
+  evaluate.py             main metrics, per country, plus paired McNemar
+  eval_random_stratum.py  metrics on the uniform random stratum only
+  eval_by_language.py     metrics by language group
+  iaa.py                  inter-annotator agreement
+  make_figures.py         label-distribution and confusion figures
+
 data/                processed.csv lands here (gitignored)
-predictions/         per-system predictions (idx + labels, no comment text)
-results/             computed metrics
+outputs/
+  predictions/       per-system predictions (idx + labels, no comment text)
+  results/           computed metrics
+  figures/           generated figures
 ```
 
 ## Reproducing the results
@@ -67,24 +70,24 @@ Every system is scored on the same instances, using out-of-fold predictions for
 the trained models, so the numbers are directly comparable.
 
 ```bash
-python scripts/prepare_data.py
-python analysis/evaluate.py               # main results + per-country breakdown
-python analysis/eval_random_stratum.py    # keyword-independent subset
-python analysis/eval_by_language.py       # by language group
-python analysis/iaa.py                    # inter-annotator agreement
+python prepare_data.py
+python evaluation/evaluate.py               # main results + per-country breakdown
+python evaluation/eval_random_stratum.py    # keyword-independent subset
+python evaluation/eval_by_language.py       # by language group
+python evaluation/iaa.py                    # inter-annotator agreement
 ```
 
-All five read the released data plus the `predictions/` shipped here, so the
+All five read the released data plus the predictions shipped in `outputs/`, so the
 paper's tables reproduce **without a GPU**. To regenerate the predictions:
 
 ```bash
-python systems/run_floor.py
-python systems/run_toxicity.py --model unitary/multilingual-toxic-xlm-roberta
-python systems/run_finetune.py --setting cv      # also: within, loco
-python systems/run_setfit.py   --setting cv      # also: within, loco
+python models/run_floor.py
+python models/run_toxicity.py --model unitary/multilingual-toxic-xlm-roberta
+python models/run_finetune.py --setting cv      # also: within, loco
+python models/run_setfit.py   --setting cv      # also: within, loco
 ```
 
-`pipelines/run_all.sh` runs the full pipeline in order. The supervised runs need
+`run_all.sh` runs the full pipeline in order. The supervised runs need
 a GPU; set `HF_HOME` to a shared model cache first. Zero-shot runs against the
 OpenAI API expect `OPENAI_KEY_FILE` to point at a file containing the key.
 

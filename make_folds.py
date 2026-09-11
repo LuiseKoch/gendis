@@ -3,11 +3,8 @@
 Run this ONCE. Every other script reads processed.csv so that all systems are
 trained and evaluated on the identical comparable partition."""
 
-import sys as _sys, pathlib as _pl
-_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
-from gendis.paths import PROCESSED
+from gendis import PROCESSED, assign_folds, countries, load_data
 
-from gendis.common import load_data, assign_folds, countries
 
 df = load_data()
 df = assign_folds(df)

@@ -24,7 +24,7 @@ start (Twitter/abuse, multilingual) and is worth reporting as a variant.
 
 import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
-from gendis.paths import PROCESSED
+from gendis import PROCESSED, write_predictions
 
 import argparse
 import numpy as np
@@ -35,7 +35,6 @@ from datasets import Dataset
 from transformers import (AutoTokenizer, AutoModelForSequenceClassification,
                           Trainer, TrainingArguments, DataCollatorWithPadding)
 
-from gendis.common import write_predictions
 
 MAXLEN = 128
 

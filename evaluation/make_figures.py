@@ -4,7 +4,7 @@ Writes PDFs into the Overleaf latex/ directory.
 
 import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
-from gendis.paths import PREDICTIONS, PROCESSED
+from gendis import PREDICTIONS, PROCESSED
 
 import os
 import numpy as np

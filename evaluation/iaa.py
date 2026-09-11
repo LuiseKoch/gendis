@@ -10,11 +10,10 @@ These numbers are the HUMAN CEILING that model scores are compared against.
 
 import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis import PROCESSED, countries
 
 import numpy as np
 import pandas as pd
-from gendis.common import countries
-from gendis.paths import PROCESSED
 
 try:
     import krippendorff
