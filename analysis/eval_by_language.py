@@ -5,13 +5,17 @@ Language group is derived from the per-comment primary language category:
   English | Local (non-English monolingual) | Code-mixed | Other (off-inventory).
 Outputs a tidy CSV and prints LaTeX-ready rows for the appendix table.
 """
+
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis.paths import PREDICTIONS, PROCESSED, RESULTS
+
 import pandas as pd
 import numpy as np
 from sklearn.metrics import f1_score
-from common import L2_NAMES, FOUR_WAY
+from gendis.common import L2_NAMES, FOUR_WAY
 
-PROC = "processed.csv"
-LANG = "../language_id/language_labels_all_enriched.csv"
+PROC = str(PROCESSED)
 
 # display name -> prediction file (CV variants for the trained systems)
 SYSTEMS = [
@@ -58,8 +62,7 @@ def metrics(d):
 
 
 proc = pd.read_csv(PROC)
-lab = pd.read_csv(LANG)   # already carries idx and lgroup for all 9,600 rows
-m = proc.merge(lab[["idx", "lgroup"]], on="idx")
+m = proc.rename(columns={"language_group": "lgroup"})
 
 ns = {g: int((m.lgroup == g).sum()) for g in GROUPS}
 print("N per group:", ns)
@@ -67,10 +70,10 @@ print("N per group:", ns)
 rows = []
 import os
 for name, f in SYSTEMS:
-    if not os.path.exists("predictions/" + f):
+    if not os.path.exists(str(PREDICTIONS / f)):
         print(f"  SKIP {name}: predictions/{f} not present")
         continue
-    pr = pd.read_csv("predictions/" + f)[["idx", "pred_l1", "pred_l2"]]
+    pr = pd.read_csv(str(PREDICTIONS / f))[["idx", "pred_l1", "pred_l2"]]
     d = m.merge(pr, on="idx").dropna(subset=["pred_l1"])
     rec = {"system": name}
     for g in GROUPS:
@@ -78,7 +81,7 @@ for name, f in SYSTEMS:
         rec[f"{g}_L1"], rec[f"{g}_L2"], rec[f"{g}_E2E"] = l1, l2, e2e
     rows.append(rec)
 res = pd.DataFrame(rows)
-res.to_csv("results/by_language.csv", index=False)
+res.to_csv(str(RESULTS / "by_language.csv"), index=False)
 print("wrote results/by_language.csv")
 
 

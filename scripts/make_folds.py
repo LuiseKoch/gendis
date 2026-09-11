@@ -2,7 +2,12 @@
 
 Run this ONCE. Every other script reads processed.csv so that all systems are
 trained and evaluated on the identical comparable partition."""
-from common import load_data, assign_folds, countries
+
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis.paths import PROCESSED
+
+from gendis.common import load_data, assign_folds, countries
 
 df = load_data()
 df = assign_folds(df)
@@ -10,7 +15,7 @@ df = assign_folds(df)
 keep = ["idx", "country", "text", "gold_l1", "gold_l2", "gold4", "fold",
         "keyword_present"]
 keep = [c for c in keep if c in df.columns]
-df[keep].to_csv("processed.csv", index=False)
+df[keep].to_csv(str(PROCESSED), index=False)
 
 print("rows:", len(df), "| countries:", countries(df))
 print("\nfold sizes:\n", df["fold"].value_counts().sort_index())

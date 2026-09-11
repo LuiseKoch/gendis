@@ -16,6 +16,11 @@ the effect on the reported macro-F1 is negligible.
 Run from the repo root:  python benchmark/check_fold_duplicates.py
 """
 
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis.paths import PROCESSED
+
+
 import re
 import numpy as np
 import pandas as pd

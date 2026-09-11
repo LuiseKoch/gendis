@@ -1,6 +1,11 @@
 """Generate paper figures (CMU Serif to match the ACL body font).
 Writes PDFs into the Overleaf latex/ directory.
 """
+
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis.paths import PREDICTIONS, PROCESSED
+
 import os
 import numpy as np
 import matplotlib
@@ -58,8 +63,8 @@ import os
 import pandas as pd
 from sklearn.metrics import confusion_matrix
 CM_SYS = os.environ.get("CM_SYS", "setfit_cv.csv")
-_proc = pd.read_csv("processed.csv")
-_pr = pd.read_csv("predictions/" + CM_SYS)[["idx", "pred_l1", "pred_l2"]]
+_proc = pd.read_csv(str(PROCESSED))
+_pr = pd.read_csv(str(PREDICTIONS / CM_SYS))[["idx", "pred_l1", "pred_l2"]]
 _j = _proc.merge(_pr, on="idx")
 _L2 = {0: "neutral", 1: "negative", 2: "positive"}
 def _p4(a, b):

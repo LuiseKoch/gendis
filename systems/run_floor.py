@@ -4,10 +4,15 @@ L1: predict gendered iff the comment matched a sampling keyword
     (keyword_present) -- the heuristic the sample was built on.
 L2: predict the per-fold training-majority class (no leakage).
 """
+
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis.paths import PREDICTIONS, PROCESSED
+
 import numpy as np
 import pandas as pd
 
-df = pd.read_csv("processed.csv")
+df = pd.read_csv(str(PROCESSED))
 
 # L1 floor: keyword presence
 kp = df["keyword_present"].astype(str).str.upper().eq("TRUE").astype(int)
@@ -19,6 +24,6 @@ for f in sorted(df["fold"].unique()):
     maj = int(train["gold_l2"].value_counts().idxmax())
     pred_l2[df["fold"].values == f] = maj
 
-from common import write_predictions
+from gendis.common import write_predictions
 write_predictions(df["idx"], df["country"], "floor", kp.values, pred_l2,
-                  "predictions/floor.csv")
+                  str(PREDICTIONS / "floor.csv"))

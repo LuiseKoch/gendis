@@ -11,12 +11,17 @@ Two supported inputs (whichever you have):
 Alignment is by `post` text (exact match), since processed.csv is rebuilt
 when new countries are added.
 """
+
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis.paths import PREDICTIONS, PROCESSED
+
 import json
 import sys
 import numpy as np
 import pandas as pd
 
-proc = pd.read_csv("processed.csv")
+proc = pd.read_csv(str(PROCESSED))
 SYS = "zeroshot-gpt5nano"
 
 
@@ -62,6 +67,6 @@ if __name__ == "__main__":
     if missing:
         print(f"WARN: {missing} comments had no zero-shot match by text")
 
-    from common import write_predictions
+    from gendis.common import write_predictions
     write_predictions(merged["idx"], merged["country"], SYS,
-                      pred_l1, pred_l2, "predictions/zeroshot.csv")
+                      pred_l1, pred_l2, str(PREDICTIONS / "zeroshot.csv"))

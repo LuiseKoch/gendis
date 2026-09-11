@@ -7,9 +7,14 @@ arise when an annotator marked a comment as not gendered.
 
 These numbers are the HUMAN CEILING that model scores are compared against.
 """
+
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+
 import numpy as np
 import pandas as pd
-from common import load_data, countries
+from gendis.common import countries
+from gendis.paths import PROCESSED
 
 try:
     import krippendorff
@@ -76,7 +81,7 @@ if __name__ == "__main__":
         print("WARN: statsmodels missing -> Fleiss kappa unavailable")
     if not HAVE_KRIPP:
         print("WARN: krippendorff missing -> alpha unavailable (pip install krippendorff)")
-    df = load_data()
+    df = pd.read_csv(PROCESSED)
     report(df, "ALL COUNTRIES")
     for c in countries(df):
         report(df[df.country == c], c)

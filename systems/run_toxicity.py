@@ -13,13 +13,18 @@ Default model is multilingual; swap via --model. Inference only (CPU ok).
 Usage:
   python run_toxicity.py --model unitary/multilingual-toxic-xlm-roberta
 """
+
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis.paths import PROCESSED
+
 import argparse
 import numpy as np
 import pandas as pd
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-from common import write_predictions
+from gendis.common import write_predictions
 
 
 def make_args():
@@ -53,7 +58,7 @@ def score(texts, model_name, bs):
 
 if __name__ == "__main__":
     args = make_args()
-    df = pd.read_csv("processed.csv")
+    df = pd.read_csv(str(PROCESSED))
     s = score(df["text"].tolist(), args.model, args.bs)
     pred_l1 = (s >= args.thr).astype(int)
     pred_l2 = np.where(s >= args.thr, 1, 0)  # negative if abusive else neutral

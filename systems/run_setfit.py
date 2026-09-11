@@ -8,13 +8,18 @@ Usage:
   python run_setfit.py --setting cv
   python run_setfit.py --setting loco
 """
+
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis.paths import PROCESSED
+
 import argparse
 import numpy as np
 import pandas as pd
 from setfit import SetFitModel, Trainer as SFTrainer, TrainingArguments as SFArgs
 from datasets import Dataset
 
-from common import write_predictions
+from gendis.common import write_predictions
 
 
 def make_args():
@@ -65,7 +70,7 @@ def run_layer(df, args, task):
 
 if __name__ == "__main__":
     args = make_args()
-    df = pd.read_csv("processed.csv")
+    df = pd.read_csv(str(PROCESSED))
     sysname = f"setfit-{args.setting}"
     out = args.out or f"predictions/setfit_{args.setting}.csv"
     print(f"[{sysname}] L1 ...");  p1 = run_layer(df, args, "l1")

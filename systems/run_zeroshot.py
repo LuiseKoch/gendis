@@ -10,6 +10,11 @@ to reuse those results. Use THIS script for the newly added countries.
   export OPENAI_KEY_FILE=/path/to/openai.key
   python run_zeroshot.py
 """
+
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis.paths import PREDICTIONS, PROCESSED
+
 import json
 import os
 import time
@@ -18,14 +23,14 @@ import pandas as pd
 from openai import OpenAI
 
 from prompt import SYSTEM_PROMPT, USER_TEMPLATE, JSON_SCHEMA, MODEL
-from common import write_predictions
+from gendis.common import write_predictions
 
 KEY = open(os.environ["OPENAI_KEY_FILE"]).read().strip()
 client = OpenAI(api_key=KEY)
 
-df = pd.read_csv("processed.csv")
+df = pd.read_csv(str(PROCESSED))
 
-with open("predictions/zeroshot_input.jsonl", "w") as f:
+with open(str(PREDICTIONS / "zeroshot_input.jsonl"), "w") as f:
     for _, r in df.iterrows():
         f.write(json.dumps({
             "custom_id": f"idx-{int(r.idx)}",
@@ -36,7 +41,7 @@ with open("predictions/zeroshot_input.jsonl", "w") as f:
                      "response_format": {"type": "json_schema", "json_schema": JSON_SCHEMA}},
         }) + "\n")
 
-up = client.files.create(file=open("predictions/zeroshot_input.jsonl", "rb"),
+up = client.files.create(file=open(str(PREDICTIONS / "zeroshot_input.jsonl"), "rb"),
                          purpose="batch")
 batch = client.batches.create(input_file_id=up.id,
                               endpoint="/v1/chat/completions",
@@ -63,4 +68,4 @@ p1 = [preds.get(i, (np.nan, np.nan))[0] for i in df["idx"]]
 p2 = [preds.get(i, (np.nan, np.nan))[1] for i in df["idx"]]
 p2 = [x if x in (0, 1, 2) else np.nan for x in p2]
 write_predictions(df["idx"], df["country"], "zeroshot-gpt5nano", p1, p2,
-                  "predictions/zeroshot.csv")
+                  str(PREDICTIONS / "zeroshot.csv"))

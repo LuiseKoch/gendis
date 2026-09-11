@@ -8,22 +8,25 @@ Unlike round 1 (where the keyword-free stratum held only 200 comments/country an
 supported Level 1 only), the random stratum is now 1,500/country, so Level 2 and
 the end-to-end 4-way score are reported as well.
 """
+
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis.paths import PREDICTIONS, PROCESSED, RESULTS
+
 import glob
 import numpy as np
 import pandas as pd
 from sklearn.metrics import f1_score, accuracy_score
-from common import L2_NAMES, FOUR_WAY
+from gendis.common import L2_NAMES, FOUR_WAY
 
-proc = pd.read_csv("processed.csv")
-idxmap = pd.read_csv("idx_map.csv")
-proc = proc.merge(idxmap[["idx", "stratum", "round"]], on="idx", how="left")
+proc = pd.read_csv(str(PROCESSED))
 rand = proc[proc["stratum"] == "random_uniform"]
 print(f"random stratum: {len(rand)} rows | " +
       rand.groupby("country").size().to_string().replace("\n", " | "))
 gold = rand.set_index("idx")
 
 preds = {}
-for f in sorted(glob.glob("predictions/*.csv")):
+for f in sorted(sorted(str(p) for p in PREDICTIONS.glob("*.csv"))):
     p = pd.read_csv(f)
     for sysname, g in p.groupby("system"):
         preds[sysname] = g.set_index("idx")
@@ -72,13 +75,13 @@ print("=" * 92)
 print("RANDOM STRATUM ONLY (keyword-independent, uniform draw)")
 print("=" * 92)
 print(tab.to_string())
-tab.to_csv("results/metrics_random_stratum.csv")
+tab.to_csv(str(RESULTS / "metrics_random_stratum.csv"))
 
 for c in sorted(rand["country"].unique()):
     t = pd.DataFrame({n: {k: score(g, c).get(k) for k in ORDER}
                       for n, g in preds.items()}).T
     print(f"\n----- {c} -----")
     print(t.to_string())
-    t.to_csv(f"results/metrics_random_stratum_{c}.csv")
+    t.to_csv(RESULTS / f"metrics_random_stratum_{c}.csv")
 
 print("\nwrote results/metrics_random_stratum*.csv")

@@ -11,19 +11,24 @@ systems; the same instances for training-free systems), and reports:
 Each metric is reported overall and per country. Macro-F1 is the headline
 given class imbalance (positive is rare).
 """
+
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis.paths import PREDICTIONS, PROCESSED, RESULTS
+
 import glob
 import numpy as np
 import pandas as pd
 from sklearn.metrics import f1_score, accuracy_score, classification_report
 from statsmodels.stats.contingency_tables import mcnemar
 
-from common import L2_NAMES, FOUR_WAY
+from gendis.common import L2_NAMES, FOUR_WAY
 
-proc = pd.read_csv("processed.csv")
+proc = pd.read_csv(str(PROCESSED))
 gold = proc.set_index("idx")
 
 preds = {}
-for f in sorted(glob.glob("predictions/*.csv")):
+for f in sorted(sorted(str(p) for p in PREDICTIONS.glob("*.csv"))):
     p = pd.read_csv(f)
     for sysname, g in p.groupby("system"):
         preds[sysname] = g.set_index("idx")
@@ -129,5 +134,5 @@ g4 = e["gold4"].values
 p4 = np.array([pred4(a, b) for a, b in zip(e["pred_l1"], e["pred_l2"])])
 print(classification_report(g4, p4, labels=FOUR_WAY, digits=3, zero_division=0))
 
-tab.to_csv("results/metrics_overall.csv")
+tab.to_csv(str(RESULTS / "metrics_overall.csv"))
 print("\nwrote results/metrics_overall.csv")

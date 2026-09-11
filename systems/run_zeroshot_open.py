@@ -17,6 +17,11 @@ Match --model EXACTLY to the id shown by `huggingface-cli scan-cache` so the
 shared cache is reused (and set HF_HUB_OFFLINE=1 to fail fast instead of
 silently downloading). --tp must equal the number of visible GPUs.
 """
+
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis.paths import PROCESSED
+
 import argparse
 import json
 import re
@@ -35,7 +40,7 @@ def parse_args():
     ap.add_argument("--tp", type=int, default=1, help="tensor-parallel size (= number of visible GPUs)")
     ap.add_argument("--max-model-len", type=int, default=4096)
     ap.add_argument("--gpu-mem", type=float, default=0.90)
-    ap.add_argument("--data", default="processed.csv")
+    ap.add_argument("--data", default=str(PROCESSED))
     ap.add_argument("--no-guided", action="store_true",
                     help="disable guided JSON decoding (rely on free-form JSON parsing instead)")
     return ap.parse_args()

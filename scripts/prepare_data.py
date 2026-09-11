@@ -9,6 +9,11 @@ https://huggingface.co/datasets/<OWNER>/gendis, then authenticate with
 Writes processed.csv, the single input every other script in this repo reads.
 Fold assignments ship with the release, so the splits reproduce exactly.
 """
+
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis.paths import PROCESSED
+
 import csv
 import os
 
@@ -32,6 +37,14 @@ def main() -> None:
         "gold_l2": pd.to_numeric(d["level2"], errors="coerce"),
         "fold": d["fold"].astype(int),
         "keyword_present": d["keyword_present"].astype(bool),
+        # carried through so the analysis scripts are self-contained
+        "stratum": d["stratum"],
+        "language_group": d["language_group"],
+        "code_mixed": d["code_mixed"],
+        "A1_level1": d["level1_annotator1"], "A2_level1": d["level1_annotator2"],
+        "A3_level1": d["level1_annotator3"],
+        "A1_level2": d["level2_annotator1"], "A2_level2": d["level2_annotator2"],
+        "A3_level2": d["level2_annotator3"],
     })
 
     def comb(r):
@@ -43,7 +56,9 @@ def main() -> None:
 
     out["gold4"] = out.apply(comb, axis=1)
     out = out[["idx", "country", "text", "gold_l1", "gold_l2", "gold4",
-               "fold", "keyword_present"]]
+               "fold", "keyword_present", "stratum", "language_group",
+               "code_mixed", "A1_level1", "A2_level1", "A3_level1",
+               "A1_level2", "A2_level2", "A3_level2"]]
 
     assert len(out) == 9600, len(out)
     assert out["gold_l2"].notna().sum() == 4064, out["gold_l2"].notna().sum()
@@ -51,9 +66,9 @@ def main() -> None:
     # QUOTE_ALL is required: some comments contain a bare carriage return, which
     # pandas does not quote by default, and the CSV parser then reads it as a
     # row break (9,603 rows instead of 9,600, with shifted columns).
-    out.to_csv("processed.csv", index=False, quoting=csv.QUOTE_ALL)
+    out.to_csv(str(PROCESSED), index=False, quoting=csv.QUOTE_ALL)
 
-    back = pd.read_csv("processed.csv")
+    back = pd.read_csv(str(PROCESSED))
     assert len(back) == 9600, f"round-trip produced {len(back)} rows"
     assert back["country"].isin(["india", "kenya", "nigeria"]).all()
     print(f"wrote processed.csv ({len(out)} rows, round-trip verified)")

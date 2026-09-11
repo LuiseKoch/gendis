@@ -5,6 +5,11 @@ because vLLM's flash-attn build on this machine cannot do the tanh attention
 logit softcapping that Gemma-2 requires, and the attention backend cannot be
 overridden in this build. Slower than vLLM but produces identical-format output.
 """
+
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis.paths import PROCESSED
+
 import argparse
 import numpy as np
 import pandas as pd
@@ -19,7 +24,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True)
     ap.add_argument("--tag", required=True)
-    ap.add_argument("--data", default="processed.csv")
+    ap.add_argument("--data", default=str(PROCESSED))
     ap.add_argument("--batch-size", type=int, default=8)
     ap.add_argument("--max-new-tokens", type=int, default=32)
     args = ap.parse_args()

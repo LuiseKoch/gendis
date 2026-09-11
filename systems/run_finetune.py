@@ -21,6 +21,11 @@ Usage:
 Tip: --model worldbank/naija-xlm-twitter-base-hate gives a domain-adapted
 start (Twitter/abuse, multilingual) and is worth reporting as a variant.
 """
+
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path(__file__).resolve().parents[1]))
+from gendis.paths import PROCESSED
+
 import argparse
 import numpy as np
 import pandas as pd
@@ -30,7 +35,7 @@ from datasets import Dataset
 from transformers import (AutoTokenizer, AutoModelForSequenceClassification,
                           Trainer, TrainingArguments, DataCollatorWithPadding)
 
-from common import write_predictions
+from gendis.common import write_predictions
 
 MAXLEN = 128
 
@@ -137,7 +142,7 @@ def run_layer(df, args, task):
 
 if __name__ == "__main__":
     args = make_args()
-    df = pd.read_csv("processed.csv")
+    df = pd.read_csv(str(PROCESSED))
     tag = args.model.split("/")[-1]
     sysname = f"xlmr-{args.setting}" if "xlm" in tag.lower() else f"{tag}-{args.setting}"
     out = args.out or f"predictions/ft_{tag}_{args.setting}.csv"
