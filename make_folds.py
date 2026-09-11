@@ -1,7 +1,17 @@
-"""Step 1. Build the shared fold assignment and the canonical processed table.
+"""Regenerate the fold assignment from the raw annotation files.
 
-Run this ONCE. Every other script reads processed.csv so that all systems are
-trained and evaluated on the identical comparable partition."""
+AUTHORS ONLY, and rarely needed. The released dataset already carries the
+fold column, so `prepare_data.py` reproduces the paper's splits exactly;
+that is the normal way to build data/processed.csv.
+
+This script is the original provenance of those folds. It reads the raw
+per-country annotation files, which are not part of the public release, and
+so cannot run without them.
+
+Note that it overwrites data/processed.csv with the base columns only. The
+stratum, language and per-annotator columns that `prepare_data.py` carries
+through are dropped, which leaves eval_random_stratum.py, eval_by_language.py
+and iaa.py unable to run until prepare_data.py is run again."""
 
 from gendis import PROCESSED, assign_folds, countries, load_data
 
