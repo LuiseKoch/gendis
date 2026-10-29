@@ -14,7 +14,7 @@ harness and the model predictions behind the paper's tables.
 The dataset is **not** in this repository. It is released separately, under
 gated access:
 
-**https://huggingface.co/datasets/manueltonneau/gendis**
+**https://huggingface.co/datasets/worldbank/gendis**
 
 Request access there, then authenticate (`huggingface-cli login`, or set
 `HF_TOKEN`) and build the pipeline's input file:
